@@ -1,6 +1,7 @@
 ### Aggregation
 
 ```json
+//简单的聚合
 GET /kibana_sample_data_flights/_search
 {
 	"size":0,
@@ -12,7 +13,7 @@ GET /kibana_sample_data_flights/_search
 		}
 	}
 }
-
+//简单聚合后统计数值
 GET /kibana_sample_data_flights/_search
 {
 	"size":0,
@@ -52,7 +53,7 @@ GET /kibana_sample_data_flights/_search
 				"field": "DestCountry"
 			},
 			"aggs": {
-				"status": {
+				"price_stats": {
 					"stats": {
 						"field": "AvgTicketPrice"
 					}
@@ -81,8 +82,8 @@ POST employees/_search
 				"field":"salary"
 			}
 		},
-		"min_salary": {
-			"min": {
+		"max_salary": {
+			"max": {
 				"field":"salary"
 			}
 		}
@@ -112,7 +113,7 @@ POST employees/_search
 	}
 }
 //对Text字段进行Term聚合会报错
-//结果为对job字段进行分词后的结果
+//打开fielddata后查询，结果为对job字段进行分词后的结果
 POST employees/_search
 {
 	"size":0,
@@ -148,13 +149,13 @@ POST employees/_search
 	}
 }
 
-//不同工种中，年级最大的3个员工的具体信息
+//不同工种中，年龄最大的3个员工的具体信息
 POST employees/_search
 {
 	"size": 0,
 	"aggs": {
 		"jobs": {
-			"term": {
+			"terms": {
 				"field": "job.keyword"
 			}
 		},
@@ -184,7 +185,7 @@ PUT index
 	}
 }
 
-//Ranges分桶，里面的key是这个子桶的名字
+//Ranges分桶，key是子桶的名字
 POST employees/_search
 {
 	"size": 0,
@@ -274,6 +275,8 @@ POST employees/_search
 
 对聚合分析的结果再进行聚合分析，pipeline的分析结果根据位置的不同分为两类：sibling（结果和现有结果同级），parent（结果内嵌到现有分析结果里面）
 
+##### Sibling
+
 ```json
 //平均工资最低的工作类型，还有max_bucket，avg_bucket，stats_bucket
 POST employees/_search
@@ -325,15 +328,18 @@ POST employees/_search
 
 	}
 }
+```
 
+##### Parent
 
-//parent
-//按照年龄对平均工资求导, cumulative_sum(累计求和)
+```json
+//按照年龄对平均工资求导
+//cumulative_sum(累计求和)
 POST employees/_search
 {
 	"size": 0,
 	"aggs": {
-		"age": {
+		"age_his": {
 			"histogram": {
 				"field": "age",
 				"interval": 1,
@@ -385,8 +391,6 @@ POST employees/_search
 }
 ```
 
-
-
 ### 聚合的作用范围
 
 Elasticsearch聚合的默认作用范围是query查询的结果集，还支持filter，global，post filter改变聚合的作用范围
@@ -437,7 +441,7 @@ POST employees/_search
 	}
 }
 
-//post field，找到所有的job类型，还能找到聚合后符合条件的结果
+//Post filter，找到所有的job类型，还能找到聚合后符合条件的结果
 POST employees/_search
 {
 	"size": 0,
@@ -559,16 +563,16 @@ POST employees/_search
 
 
 
-### 聚合分析不准确
+### 聚合的结果不准确
 
 Coordinating Node从其他分片获得的聚合数据有可能有缺漏，因为其他分片没有全局的信息
 
 Terms Aggregation的返回结果中有两个值`doc_count_error_upper_bound`和`sum_other_doc_count`
 - doc_count_error_upper_bound：被遗漏的term分桶，包含的文档，有可能的最大值
-- sum_other_doc_count：除了返回结果bucket的terms意外，其他term的文档总数（总数-返回的总数）
+- sum_other_doc_count：除了返回结果bucket的terms以外，其他term的文档总数（总数-返回的总数）
 
-#### 解决Terms不准确的问题
+#### 解决结果不准确的问题
 
 - 当数据量不大的时候，设置primary shard为1
-- 设置`shard_size`参数，提高精确度，其作用是每次从shard上额外多获取数据，打开`"term":{show_term_doc_count_error: true}`
+- 设置`shard_size`参数，提高精确度，其作用是每次从shard上额外多获取数据，打开`"term":{show_term_doc_count_error: true}`查看结果的准确信息
 
