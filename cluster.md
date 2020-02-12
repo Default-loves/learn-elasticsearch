@@ -7,7 +7,7 @@
 - Master节点：处理创建、删除索引等请求/决定分片被分配到哪个节点/负责索引的创建和删除
 - DataNode保存了分片数据
 - Coordinating Node负责接收Client的请求，将请求发送到合适的节点，最终将结果进行汇总，每个节点默认都起到了Coordinating Node的职责，通过将其他类型设置为false，使节点变为coordinating node
-- 一个节点默认是Master Eligible，Data Node，Ingest Node
+- 一个节点默认是Master Eligible，Data Node，Ingest Node，当这三个相关的配置参数都是false的时候，节点为Coordinating Node
 - 查看集群的健康状况：`GET _cluster/health`
 
 - cerebro: `localhost:9000`

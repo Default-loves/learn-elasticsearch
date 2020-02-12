@@ -28,3 +28,49 @@
 - certificate：节点加入需要使用相同CA签发的证书
 - full verification：节点加入需要使用相同CA签发的证书，还需要验证host name和ip地址
 - no verification：任何节点都可以加入集群，主要用于开发环境
+
+具体操作：
+
+```
+生成ca的证书文件elastic-stack-ca.p12：elasticsearch-certutil ca
+生辰elastic-certificate.p12并且复制放置到certs文件夹中：elasticsearch-certutil cerrt --ca elastic-stack-ca.p12
+
+使用生成的证书文件启动节点，对于无证书启动的节点会报错
+elasticsearch -E node.name=node0 -E cluster.name=junyi -E path.data=node0_data -E http.port=9200 -E xpack.security.enabled=true -E xpack.security.transport.ssl.enable=true -E xpack.security.transport.ssl.verification_mode=certificate -E xpack.security.transport.ssl.keystore.path=certs/elastic-certificates.p12 -E xpack.security.transport.ssl.truststore.path=certs/elastic-certificates.p12
+```
+
+### 集群与外部间的安全通信
+
+为Elasticsearch配置HTTPS
+
+```
+xpack.security.http.ssl.enabled: true
+xpack.security.http.ssl.keystore.path: certs/elastic-certificates.p12
+xpack.security.http.ssl.truststore.path: certs/elastic-certificates.p12
+```
+
+
+
+配置Kibana连接Elasticsearch Https
+
+```
+- 根据elastic-certificates.p12生成elastic-ca.pem文件，放置到elasticsearch/config/certs目录下：
+openssl pkcs12 -in elastic-certificates.p12 -cacerts -nokeys -out elastic-ca.pem
+- 配置kibana.yml文件：
+elasticsearch.hosts: ["https://localhost:9200"]
+elasticsearch.ssl.certificateAuthorities: ["XXXXX/elasticsearch/config/certs"]
+elasticsearch.ssl.verificationMode: certificate
+```
+
+
+
+配置使用HTTPS访问Kibana
+
+```
+- 生成一个pem的证书，会生成一个zip文件，将文件解压后放置到kibana/config/certs目录下：elasticsearch-certutil ca --pem
+- 配置kibana.yml文件：
+server.ssl.enabled: true
+server.ssl.certificate: config/certs/ca.crt
+server.ssl.key: config/certs/ca.key
+```
+

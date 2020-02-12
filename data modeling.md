@@ -748,7 +748,7 @@ GET users/_search
 - 对于更新频繁，聚合查询频繁的keyword类型的字段，设置`eager_global_ordinals:true`，能够更好利用缓存的特性，增加term aggregation的性能
 
 额外的存储
-- 是否需要专门存储字段的原始内容：将store设置为true，一般结合_source的enabled为false时候使用
+- 是否需要专门存储字段的原始内容：将每个字段的store设置为true，一般结合_source的enabled为false时候使用
 - disable `_source`：节省磁盘空间，适用于指标性数据（一般比较少修改）。不过一般先考虑压缩比，因为当关闭之后，无法看到`_source`，也无法做reindex，无法做update
 
 ```json
