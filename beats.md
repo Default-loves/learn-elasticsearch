@@ -1,6 +1,6 @@
 ### 总述
 
-是一个轻量级的搜索数据的工具，包括很多开箱即用的比如Filebeat、Metricbeat等
+是一个轻量级的数据采集器，包括很多开箱即用的比如Filebeat、Metricbeat等
 
 https://www.elastic.co/guide/en/beats/metricbeat/current/index.html
 
@@ -27,7 +27,7 @@ https://www.elastic.co/guide/en/beats/metricbeat/current/index.html
 
 开启MetricBeats：`metricbeat`
 
-对数据库做一些操作，可以再kibana的Dashboard看到指标数据的信息
+对数据库做一些操作，可以在kibana的Dashboard看到指标数据的信息
 ```
 
 

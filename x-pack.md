@@ -1,0 +1,7 @@
+### 用Monitoring和Alerting监控Elasticsearch集群
+
+X-Pack提供了免费集群监控功能
+
+Watcher for Alerting需要Gold账户，不是免费的
+
+在生产环境中，建议搭建dedicated集群来监控Elasticsearch集群，这样能够减少Elasticsearch集群的负载和数据，而其被监控集群出现问题的时候，还能够看到监控相关的数据
