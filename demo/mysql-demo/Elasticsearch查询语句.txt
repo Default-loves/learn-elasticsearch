@@ -1,0 +1,42 @@
+
+
+# 创建 alias，只显示没有被标记 deleted的用户
+POST /_aliases
+{
+  "actions": [
+    {
+      "add": {
+        "index": "users",
+        "alias": "view_users",
+         "filter" : { "term" : { "is_deleted" : false } }
+      }
+    }
+  ]
+}
+
+# 通过 Alias查询，查不到被标记成 deleted的用户
+POST view_users/_search
+{}
+
+
+POST view_users/_search
+{
+  "query": {
+    "term": {
+      "name.keyword": {
+        "value": "Jack"
+      }
+    }
+  }
+}
+
+POST users/_search
+{
+  "query": {
+    "term": {
+      "name.keyword": {
+        "value": "Jack"
+      }
+    }
+  }
+}
